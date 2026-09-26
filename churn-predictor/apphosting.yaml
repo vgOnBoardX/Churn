@@ -1,0 +1,16 @@
+# Firebase App Hosting configuration
+kind: AppHostingYaml
+schemaVersion: v1
+
+runConfig:
+  minInstances: 1
+  maxInstances: 10
+  cpu: 1
+  memoryMiB: 1024
+
+env:
+  - variable: NEXT_PUBLIC_API_URL
+    value: "https://churn-api-xyz-uc.a.run.app"
+    availability:
+      - BUILD
+      - RUNTIME

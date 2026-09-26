@@ -1,0 +1,64 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  lint-and-test-ml-and-api:
+    name: Lint & Pytest (ML & API)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install ruff pytest pytest-cov pytest-asyncio aiosqlite
+          pip install -r churn-predictor/api/requirements.txt
+
+      - name: Lint with Ruff
+        run: |
+          ruff check churn-predictor/ml/
+          ruff check churn-predictor/api/
+
+      - name: Run ML pipeline tests
+        run: |
+          pytest churn-predictor/ml/tests/ -v
+
+      - name: Run API tests with coverage
+        run: |
+          pytest churn-predictor/api/tests/ -v --cov=churn-predictor/api/app
+
+  build-frontend:
+    name: Build Next.js Dashboard
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "npm"
+          cache-dependency-path: churn-predictor/web/package-lock.json
+
+      - name: Install dependencies
+        working-directory: churn-predictor/web
+        run: npm ci
+
+      - name: Next.js Type Check and Production Build
+        working-directory: churn-predictor/web
+        run: npm run build

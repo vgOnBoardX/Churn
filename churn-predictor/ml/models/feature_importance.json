@@ -1,0 +1,48 @@
+{
+  "top_features": [
+    {
+      "feature": "contract_type_month-to-month",
+      "importance": 0.471129
+    },
+    {
+      "feature": "support_tickets_30d",
+      "importance": 0.3221
+    },
+    {
+      "feature": "tenure_months",
+      "importance": 0.316511
+    },
+    {
+      "feature": "contract_type_one_year",
+      "importance": 0.136459
+    },
+    {
+      "feature": "monthly_charges",
+      "importance": 0.131269
+    },
+    {
+      "feature": "total_charges",
+      "importance": 0.09883
+    },
+    {
+      "feature": "contract_type_two_year",
+      "importance": 0.087608
+    },
+    {
+      "feature": "payment_method_credit_card",
+      "importance": 0.034754
+    },
+    {
+      "feature": "payment_method_electronic_check",
+      "importance": 0.020186
+    },
+    {
+      "feature": "payment_method_bank_transfer",
+      "importance": 0.012477
+    },
+    {
+      "feature": "payment_method_mailed_check",
+      "importance": 0.006907
+    }
+  ]
+}

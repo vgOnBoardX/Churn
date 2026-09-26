@@ -1,0 +1,13 @@
+{
+  "name": "churn-platform-root",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "npm run dev --prefix churn-predictor/web",
+    "build": "npm run build --prefix churn-predictor/web",
+    "start": "npm run start --prefix churn-predictor/web",
+    "dev:api": "cd churn-predictor/api && uvicorn app.main:app --reload",
+    "test:api": "pytest churn-predictor/api/tests/ -v",
+    "test:ml": "pytest churn-predictor/ml/tests/ -v"
+  }
+}

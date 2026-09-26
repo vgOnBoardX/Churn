@@ -1,0 +1,72 @@
+name: Deploy to GCP & Firebase
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy-api-cloud-run:
+    name: Deploy API to Google Cloud Run
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Configure Docker for Artifact Registry
+        run: gcloud auth configure-docker us-central1-docker.pkg.dev --quiet
+
+      - name: Build & Push API Container
+        working-directory: churn-predictor/api
+        run: |
+          IMAGE_URI="us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/churn-repo/churn-api:${{ github.sha }}"
+          docker build -t $IMAGE_URI .
+          docker push $IMAGE_URI
+
+      - name: Deploy to Cloud Run
+        run: |
+          IMAGE_URI="us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/churn-repo/churn-api:${{ github.sha }}"
+          gcloud run deploy churn-api \
+            --image $IMAGE_URI \
+            --platform managed \
+            --region us-central1 \
+            --allow-unauthenticated \
+            --min-instances 1 \
+            --memory 2Gi \
+            --set-env-vars "DATABASE_URL=${{ secrets.PROD_DATABASE_URL }}"
+
+  deploy-web-firebase:
+    name: Deploy Web to Firebase App Hosting
+    runs-on: ubuntu-latest
+    needs: deploy-api-cloud-run
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies & Build
+        working-directory: churn-predictor/web
+        env:
+          NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL }}
+        run: |
+          npm ci
+          npm run build
+
+      - name: Deploy to Firebase Hosting
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: ${{ secrets.GITHUB_TOKEN }}
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          channelId: live
+          projectId: ${{ secrets.FIREBASE_PROJECT_ID }}
