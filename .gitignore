@@ -1,0 +1,32 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+
+# Testing & Coverage
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Local databases & ML runs
+*.db
+mlruns/
+**/mlruns/
+
+# Next.js / Node
+node_modules/
+.next/
+out/
+build/
+dist/
+
+# Vercel
+.vercel

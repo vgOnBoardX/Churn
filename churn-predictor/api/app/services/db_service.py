@@ -19,8 +19,12 @@ from sqlalchemy.orm import DeclarativeBase
 log = logging.getLogger(__name__)
 
 # Default: SQLite in the repo root (overridden by DATABASE_URL env var in prod)
-_DEFAULT_DB_PATH = Path(__file__).resolve().parents[3] / "churn_dev.db"
-DATABASE_URL = os.getenv("DATABASE_URL", f"sqlite+aiosqlite:///{_DEFAULT_DB_PATH}")
+# On serverless platforms (e.g. Vercel), the filesystem is read-only except /tmp
+_repo_db = Path(__file__).resolve().parents[3] / "churn_dev.db"
+_is_serverless = bool(os.getenv("VERCEL") or os.getenv("AWS_LAMBDA_FUNCTION_NAME"))
+_default_path = Path("/tmp/churn_dev.db") if _is_serverless else _repo_db
+
+DATABASE_URL = os.getenv("DATABASE_URL", f"sqlite+aiosqlite:///{_default_path}")
 
 engine = create_async_engine(DATABASE_URL, echo=False, future=True)
 AsyncSessionLocal = async_sessionmaker(engine, expire_on_commit=False)

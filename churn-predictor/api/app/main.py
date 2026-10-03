@@ -30,8 +30,11 @@ async def lifespan(app: FastAPI):
     Shutdown: nothing to clean up.
     """
     log.info("=== Startup: initialising database… ===")
-    await init_db()
-    await seed_customers_if_empty()
+    try:
+        await init_db()
+        await seed_customers_if_empty()
+    except Exception as e:
+        log.warning("Database init/seed error: %s — continuing startup.", e)
 
     log.info("=== Startup: loading ML model… ===")
     try:
@@ -39,6 +42,8 @@ async def lifespan(app: FastAPI):
         log.info("=== Model ready. ===")
     except FileNotFoundError as e:
         log.warning("Model not found: %s — /predict endpoints will return 500 until model is trained.", e)
+    except Exception as e:
+        log.exception("Unexpected error loading ML model: %s", e)
 
     yield
 

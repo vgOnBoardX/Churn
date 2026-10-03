@@ -1,0 +1,9 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "functions": {
+    "churn-predictor/api/**": {
+      "maxDuration": 30,
+      "excludeFiles": "{tests/**,__tests__/**,**/*.test.py,**/test_*.py,mlruns/**,**/mlruns/**,web/**,**/node_modules/**,**/data/**,**/*.db}"
+    }
+  }
+}
